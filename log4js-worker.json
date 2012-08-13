@@ -1,0 +1,12 @@
+{
+	"appenders": [{
+		"type": "logLevelFilter",
+		"level": "DEBUG",
+		"appender": {
+			"type": "multiprocess",
+			"mode": "worker",
+			"loggerPort": 5001,
+			"loggerHost": "0.0.0.0"
+		}
+	}]
+}

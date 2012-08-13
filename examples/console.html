@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta content="text/html" charset="utf-8">
+
+    <title>Analytics Test Console</title>
+    <script src="http://blog.denivip.ru/sample_backbone_app/js/jquery-1.7.2.min.js"></script>
+
+    <script type="text/javascript">
+        $(function () {
+                    window.WebSocket = window.WebSocket || window.MozWebSocket;
+
+                    var wsConnection = new WebSocket('ws://192.168.1.44:81'),
+                            wsReady = false,
+                            user = 'anonimous',
+                            contentId = 'sintel',
+                            contentType = 'movie',
+                            unique = Math.random(),
+                            token = '4b5783300334000000000aa9',
+                            player = {
+                                startTime:0,
+                                currentTime:151,
+                                stopTime:235,
+                                seekTime:202
+                            },
+                            apiURL = 'http://192.168.1.44:444';
+
+                    wsConnection.onopen = function (event) {
+                        console.log('WS connected');
+                        wsReady = true;
+                    };
+
+                    wsConnection.onmessage = function (event) {
+                        console.log('WS message: ' + event.data);
+                    };
+
+                    function getUrl(event, position) {
+                        return '?event=' + event + '&userId=' + user + '&contentId=' + contentId + '&contentType=' + contentType + '&position=' + position + '&uniqueId=' + unique + '&token=' + token;
+                    }
+
+                    function message(event, position) {
+                        if (wsReady) {
+                            var url = getUrl(event, position);
+
+                            wsConnection.send(url);
+                            console.log('send: ' + url);
+                        } else {
+                            console.error('WSocket is not ready');
+                        }
+                    }
+
+                    $('#start').click(function () {
+                        message('start', player.startTime);
+                    });
+                    $('#stop').click(function () {
+                        message('stop', player.stopTime);
+                    });
+                    $('#pause').click(function () {
+                        message('pause', player.currentTime);
+                    });
+                    $('#unpause').click(function () {
+                        message('unpause', player.currentTime);
+                    });
+                    $('#ping').click(function () {
+                        message('ping', player.currentTime);
+                    });
+                    $('#seek').click(function () {
+                        message('seek', player.seekTime);
+                    });
+                    $('#pause-unpause-crash').click(function () {
+                        for (var i = 0; i < 300; i++) {
+                            message('pause', player.currentTime);
+                            message('unpause', player.currentTime);
+                        }
+                    });
+                    $('#ban').click(function () {
+                        var url = apiURL + '/ban-user?userId=' + user + '&token=' + token;
+                        console.log(url);
+                        $.get(url, function (data) {
+                            console.log(data);
+                        });
+                    });
+                    $('#unban').click(function () {
+                        var url = apiURL + '/unban-user?userId=' + user + '&token=' + token;
+
+                        console.log(url);
+                        $.get(url, function (data) {
+                            console.log(data);
+                        });
+                    });
+
+                    $('#stop-point-crash').click(function () {
+                        var url = apiURL + '/get-stop-point?userId=' + user + '&token=' + token + '&contentId=' + contentId + '&contentType=' + contentType;
+
+                        console.log(url);
+                        for (var i = 0; i < 300; i++) {
+                            $.get(url, function (data) {
+                                console.log(data);
+                            });
+                        }
+
+                    });
+                }
+        );
+    </script>
+</head>
+<body>
+F12 - console<br>
+Wait message "WS connected"
+<hr>
+
+<button id="start">Start</button>
+<br>
+<button id="stop">Stop</button>
+<br>
+<button id="pause">Pause</button>
+<br>
+<button id="unpause">Unpause</button>
+<br>
+<button id="ping">Ping</button>
+<br>
+<button id="seek">Seek</button>
+<br>
+<button id="pause-unpause-crash">300 pause/unpause</button>
+<hr>
+API<br>
+<button id="ban">Ban User</button>
+<br>
+<button id="unban">Unban User</button>
+<br>
+<button id="stop-point-crash">300 get-stop-point</button>
+</body>
+</html>

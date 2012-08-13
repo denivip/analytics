@@ -1,0 +1,18 @@
+{
+	"appenders": [{
+		"type": "logLevelFilter",
+		"level": "DEBUG",
+		"appender": {
+			"type": "multiprocess",
+			"mode": "master",
+			"loggerPort": 5001,
+			"loggerHost": "0.0.0.0",
+			"appender": {
+				"category": "main",
+				"type": "console",
+				"filename": "logs/sserver.log",
+				"pollInterval": 30
+			}
+		}
+	}]
+}
